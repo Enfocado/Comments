@@ -7,3 +7,4 @@ coverage
 /coverage/
 /postGres/commentData
 /postGres/projectData
+newrelic.js

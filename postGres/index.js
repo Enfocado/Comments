@@ -1,17 +1,36 @@
 const { Pool, Client } = require('pg');
+const connectionString = 'postgresql://Steven:password@localhost:5432/comments';
 
-const pool = new Pool({
-  host: 'localhost',
-  port: 5432,
-  user: 'Steven',
-  password: 'password',
-  database: 'comments'
-});
+
+const client = new Client({
+  connectionString: connectionString,
+  // user: 'Steven',
+  // host: 'localhost',
+  // database: 'comments',
+  // password: 'password',
+  // port: 5432,
+})
+
+client.connect();
+
+// client.query('SELECT NOW()', (err, res) => {
+//   console.log(err, res)
+//   client.end()
+// })
+
+// const pool = new Pool({
+//   connectionLimit: 100,
+//   host: 'localhost',
+//   port: 5432,
+//   user: 'Steven',
+//   password: 'password',
+//   database: 'comments'
+// });
 
 
 const getReviews = (projects_id, projectName, cb) => {
   let query = `SELECT avatar, username, backer, comment, date_prod FROM comments WHERE comments.projects_id = ${projects_id}`;
-  pool.query(query, (err, res) => {
+  client.query(query, (err, res) => {
     if (err) console.log(err);
     for (let i = 0; i < res.rows.length; i++) {
       res.rows[i].date = res.rows[i].date_prod;
@@ -21,14 +40,46 @@ const getReviews = (projects_id, projectName, cb) => {
       };
       delete res.rows[i].date_prod;
     }
+    console.log(res.rows);
     cb(res.rows);
   });
+  // pool.query('SELECT NOW()', (err, res) => {
+  //   console.log(err, res);
+  //   pool.end();
+  // });
+  // pool.getConnection(function(err, connection) {
+  //   console.log('2');
+  //   if (err) {
+  //     connection.release();
+  //     res.json({ "code": 100, "status": "Error in connection database" });
+  //     return;
+  //   }
+  //   connection.query(query, function(err, rows, fields) {
+  //     if (err) throw err;
+  //     cb(rows);
+  //   });
+  // });
+  
+  // let query = `SELECT avatar, username, backer, comment, date_prod FROM comments WHERE comments.projects_id = ${projects_id}`;
+  // pool.query(query, (err, res) => {
+    // if (err) console.log(err);
+    // for (let i = 0; i < res.rows.length; i++) {
+    //   res.rows[i].date = res.rows[i].date_prod;
+    //   res.rows[i].project = {
+    //     projectName: projectName,
+    //     projectID: projects_id
+    //   };
+    //   delete res.rows[i].date_prod;
+    // }
+  //   pool.end();
+  //   cb(res.rows);
+  // });
 };
 
 const createReview = (avatar, username, backer, comment, date_prod, projects_id, cb) => {
   let query = `INSERT INTO comments (avatar, username, backer, comment, date_prod, projects_id) VALUES ('${avatar}', '${username}', '${backer}', '${comment}', '${date_prod}', ${projects_id})`;
   // ('https://s3-us-west-1.amazonaws.com/pley-land/10.jpg', 'KassandraC', 'Backer', 'Lorem Ipsum', '2018-06-06T23:33:20.811Z', 10000000);
-  pool.query(query, (err, res) => {
+  client.query(query, (err, res) => {
     if (err) console.log(err);
     console.log('INSERT SUCCESS');
     cb(res);
@@ -38,7 +89,7 @@ const createReview = (avatar, username, backer, comment, date_prod, projects_id,
 const updateReview = (username, comment, date_prod, projects_id, cb) => {
   let query = `UPDATE comments SET (comment, date_prod) = ('${comment}', '${date_prod}') WHERE projects_id = ${projects_id} AND username = '${username}'`;
   // ('Lorem Ipsum', '2018-06-06T23:33:20.811Z') WHERE projects_id = 10000000 AND username = 'KassandraC'`;
-  pool.query(query, (err, res) => {
+  client.query(query, (err, res) => {
     if (err) console.log(err);
     console.log('UPDATE SUCCESS');
     cb(res);
@@ -48,10 +99,11 @@ const updateReview = (username, comment, date_prod, projects_id, cb) => {
 const deleteReview = (username, comment, projects_id, cb) => {
   let query = `DELETE FROM comments WHERE username = '${username}' AND comment = '${comment}' AND projects_id = ${projects_id}`;
   // let query = `DELETE FROM comments WHERE username = 'KassandraC' AND comment = 'Lorem Ipsum' AND projects_id = 10000000`;
-  pool.query(query, (err, res) => {
+  client.query(query, (err, res) => {
     if (err) console.log(err);
     console.log('DELETE SUCCESS');
-    cb(res);  });
+    cb(res);  
+  });
 };
 
 // MongoDB

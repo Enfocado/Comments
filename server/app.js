@@ -3,13 +3,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const Log = require('log');
-const db = require('../db/index');
+const compression = require('compression')
 const pgdb = require('../postGres/index');
 
 
 const log = new Log('info');
 
 const app = express();
+app.use(compression());
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
