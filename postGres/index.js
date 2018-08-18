@@ -1,78 +1,40 @@
 const { Pool, Client } = require('pg');
 const connectionString = 'postgresql://Steven:password@localhost:5432/comments';
+const redis = require("redis");
 
+var redisClient = redis.createClient();
+redisClient.on("error", function (err) {
+    console.log("Error " + err);
+});
 
 const client = new Client({
-  connectionString: connectionString,
-  // user: 'Steven',
-  // host: 'localhost',
-  // database: 'comments',
-  // password: 'password',
-  // port: 5432,
+  connectionString: connectionString
 })
 
 client.connect();
 
-// client.query('SELECT NOW()', (err, res) => {
-//   console.log(err, res)
-//   client.end()
-// })
-
-// const pool = new Pool({
-//   connectionLimit: 100,
-//   host: 'localhost',
-//   port: 5432,
-//   user: 'Steven',
-//   password: 'password',
-//   database: 'comments'
-// });
-
 const getReviews = (projects_id, projectName, cb) => {
   let query = `SELECT avatar, username, backer, comment, date_prod FROM comments WHERE comments.projects_id = ${projects_id}`;
-  client.query(query, (err, res) => {
-    if (err) console.log(err);
-    for (let i = 0; i < res.rows.length; i++) {
-      res.rows[i].date = res.rows[i].date_prod;
-      res.rows[i].project = {
-        projectName: projectName,
-        projectID: projects_id
-      };
-      delete res.rows[i].date_prod;
+  redisClient.get(query, (err, result) => {
+    if (result) {
+      cb(result);
+    } else {
+      client.query(query, (err, res) => {
+        if (err) console.log(err);
+
+        for (let i = 0; i < res.rows.length; i++) {
+          res.rows[i].date = res.rows[i].date_prod;
+          res.rows[i].project = {
+            projectName: projectName,
+            projectID: projects_id
+          };
+          delete res.rows[i].date_prod;
+        }
+        redisClient.setex(query, 3600, JSON.stringify(res.rows));
+        cb(res.rows);
+      });
     }
-    console.log(res.rows);
-    cb(res.rows);
   });
-  // pool.query('SELECT NOW()', (err, res) => {
-  //   console.log(err, res);
-  //   pool.end();
-  // });
-  // pool.getConnection(function(err, connection) {
-  //   console.log('2');
-  //   if (err) {
-  //     connection.release();
-  //     res.json({ "code": 100, "status": "Error in connection database" });
-  //     return;
-  //   }
-  //   connection.query(query, function(err, rows, fields) {
-  //     if (err) throw err;
-  //     cb(rows);
-  //   });
-  // });
-  
-  // let query = `SELECT avatar, username, backer, comment, date_prod FROM comments WHERE comments.projects_id = ${projects_id}`;
-  // pool.query(query, (err, res) => {
-    // if (err) console.log(err);
-    // for (let i = 0; i < res.rows.length; i++) {
-    //   res.rows[i].date = res.rows[i].date_prod;
-    //   res.rows[i].project = {
-    //     projectName: projectName,
-    //     projectID: projects_id
-    //   };
-    //   delete res.rows[i].date_prod;
-    // }
-  //   pool.end();
-  //   cb(res.rows);
-  // });
 };
 
 const createReview = (avatar, username, backer, comment, date_prod, projects_id, cb) => {

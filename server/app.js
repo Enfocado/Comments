@@ -6,7 +6,6 @@ const Log = require('log');
 const compression = require('compression')
 const pgdb = require('../postGres/index');
 
-
 const log = new Log('info');
 
 const app = express();
