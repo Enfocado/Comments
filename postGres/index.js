@@ -27,7 +27,6 @@ client.connect();
 //   database: 'comments'
 // });
 
-
 const getReviews = (projects_id, projectName, cb) => {
   let query = `SELECT avatar, username, backer, comment, date_prod FROM comments WHERE comments.projects_id = ${projects_id}`;
   client.query(query, (err, res) => {
