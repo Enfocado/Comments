@@ -1,12 +1,46 @@
 version: '3'
 
 services: 
+  # postgres:
+  #   build: postGres/
+  #   restart: on-failure
+  #   environment:
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_USER: Steven
+  #     POSTGRES_DB: comments
+  #   ports:
+  #     - '5432:5432'
+
+  redis:
+    image: "redis:alpine"
+    command: ["redis-server", "--appendonly", "yes"]
+    hostname: redis
+    ports:
+      - '6379:6379'
+    networks:
+      - redis-net
+    volumes:
+      - redis-data:/data
+
   comments:
-    build: .
+    # build: .
+    image: "stevenyslee/comments_comments:firsttry"
+    restart: on-failure
+    environment:
+      - NODE_ENV=production
+      - RHOST=redis
     depends_on:
-      - 'database'
+      # - 'postgres'
+      - 'redis'
     ports:
       - '3003:3003'
+    networks:
+      - redis-net
+    # command: ["bash", "./wait_for_it.sh", "postgres:5432", "--", "npm", "start"]
+    command: ["npm", "start"]
 
-  database:
-    image: mongo:latest
+networks:
+  redis-net:
+
+volumes:
+  redis-data:
