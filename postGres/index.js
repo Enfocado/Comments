@@ -1,25 +1,48 @@
-const { Pool, Client } = require('pg');
-const connectionString = 'postgresql://Steven:password@localhost:5432/comments';
+const { Client, Pool } = require('pg');
+const connectionString = 'postgresql://Steven:password@52.53.196.168:5432/comments';
 const redis = require("redis");
 
-var redisClient = redis.createClient();
+var redisClient = redis.createClient({
+  host: 'redis'
+});
 redisClient.on("error", function (err) {
     console.log("Error " + err);
 });
 
-const client = new Client({
-  connectionString: connectionString
-})
+const pool = new Pool({
+  user: 'steven',
+  host: '52.53.196.168',
+  database: 'comments',
+  password: 'password',
+  port: 5432,
+});
 
-client.connect();
+pool.connect();
+
+pool.on('error', (err) => {
+  console.error('An idle client has experienced an error', err.stack);
+});
+
+// const client = new Client({
+//   // connectionString: connectionString,
+//   user: 'steven',
+//   host: '52.53.196.168',
+//   database: 'comments',
+//   password: 'password',
+//   port: 5432,
+// });
+
+// client.connect();
 
 const getReviews = (projects_id, projectName, cb) => {
   let query = `SELECT avatar, username, backer, comment, date_prod FROM comments WHERE comments.projects_id = ${projects_id}`;
   redisClient.get(query, (err, result) => {
     if (result) {
+      console.log('REDIS GET SUCCESS');
       cb(result);
     } else {
-      client.query(query, (err, res) => {
+      // client.query(query, (err, res) => {
+      pool.query(query, (err, res) => {
         if (err) console.log(err);
 
         for (let i = 0; i < res.rows.length; i++) {
@@ -30,7 +53,8 @@ const getReviews = (projects_id, projectName, cb) => {
           };
           delete res.rows[i].date_prod;
         }
-        redisClient.setex(query, 3600, JSON.stringify(res.rows));
+        redisClient.setex(query, 1, JSON.stringify(res.rows));
+        console.log('PG GET SUCCESS');
         cb(res.rows);
       });
     }
@@ -40,7 +64,8 @@ const getReviews = (projects_id, projectName, cb) => {
 const createReview = (avatar, username, backer, comment, date_prod, projects_id, cb) => {
   let query = `INSERT INTO comments (avatar, username, backer, comment, date_prod, projects_id) VALUES ('${avatar}', '${username}', '${backer}', '${comment}', '${date_prod}', ${projects_id})`;
   // ('https://s3-us-west-1.amazonaws.com/pley-land/10.jpg', 'KassandraC', 'Backer', 'Lorem Ipsum', '2018-06-06T23:33:20.811Z', 10000000);
-  client.query(query, (err, res) => {
+  // client.query(query, (err, res) => {
+  pool.query(query, (err, res) => {
     if (err) console.log(err);
     console.log('INSERT SUCCESS');
     cb(res);
@@ -50,7 +75,8 @@ const createReview = (avatar, username, backer, comment, date_prod, projects_id,
 const updateReview = (username, comment, date_prod, projects_id, cb) => {
   let query = `UPDATE comments SET (comment, date_prod) = ('${comment}', '${date_prod}') WHERE projects_id = ${projects_id} AND username = '${username}'`;
   // ('Lorem Ipsum', '2018-06-06T23:33:20.811Z') WHERE projects_id = 10000000 AND username = 'KassandraC'`;
-  client.query(query, (err, res) => {
+  // client.query(query, (err, res) => {
+  pool.query(query, (err, res) => {
     if (err) console.log(err);
     console.log('UPDATE SUCCESS');
     cb(res);
@@ -60,7 +86,8 @@ const updateReview = (username, comment, date_prod, projects_id, cb) => {
 const deleteReview = (username, comment, projects_id, cb) => {
   let query = `DELETE FROM comments WHERE username = '${username}' AND comment = '${comment}' AND projects_id = ${projects_id}`;
   // let query = `DELETE FROM comments WHERE username = 'KassandraC' AND comment = 'Lorem Ipsum' AND projects_id = 10000000`;
-  client.query(query, (err, res) => {
+  // client.query(query, (err, res) => {
+  pool.query(query, (err, res) => {
     if (err) console.log(err);
     console.log('DELETE SUCCESS');
     cb(res);  
