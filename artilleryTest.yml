@@ -1,46 +1,20 @@
 config:
   target: 'http://127.0.0.1:3003'
   phases:
-    - duration: 10
-      arrivalRate: 1
+    - duration: 15
+      arrivalRate: 10
   defaults:
     headers:
       x-my-service-auth: '987401838271002188298567'
   variables:
-    projectIDs:
-      - ["8747860", "2234", "3142", "264534", "51253", "67543", "12374", "84321", "12349", "1320", "164321", "1879562", "1708975"]
+    projectIds:
+      - ["8747860", "9628153", "8491468", "9239701", "9702154", "8546007", "9198592", "9724731", "9800023", "8959885", "9015710", "8292253", "8747860", "9628153", "8491468"]
 scenarios:
   - flow:
-    # - loop:
-    #   - get:
-    #       url: "/Project {{ $loopElement }}/{{ $loopElement }}/section/comments"
-    # over: projectIDs
-
-    - get:
-        url: "/Project 8747860/8747860/section/comments"
-    - get:
-        url: "/Project 9628153/9628153/section/comments"
-    - get:
-        url: "/Project 8491468/8491468/section/comments"
-    - get:
-        url: "/Project 9239701/9239701/section/comments"
-    - get:
-        url: "/Project 9702154/9702154/section/comments"
-    - get:
-        url: "/Project 8546007/8546007/section/comments"
-    - get:
-        url: "/Project 9198592/9198592/section/comments"
-    - get:
-        url: "/Project 9724731/9724731/section/comments"
-    - get:
-        url: "/Project 9800023/9800023/section/comments"
-    - get:
-        url: "/Project 8959885/8959885/section/comments"
-    - get:
-        url: "/Project 9015710/9015710/section/comments"
-    - get:
-        url: "/Project 8292253/8292253/section/comments" 
-
+    - loop: 
+        - get:
+            url: "/Project {{ $loopElement }}/{{ $loopElement }}/section/comments"
+      over: projectIds
     - post:
         url: "/Project 10/10/section/comments"
         json:
@@ -49,7 +23,6 @@ scenarios:
           backer: "Backer"
           comment: "Lorem Ipsum"
           date_prod: "2018-06-06T23:33:20.811Z"
-
     - post:
         url: "/Project 11/11/section/comments"
         json:
@@ -58,7 +31,6 @@ scenarios:
           backer: "Backer"
           comment: "Lorem Ipsum"
           date_prod: "2018-06-06T23:33:20.811Z"
-
     - post:
         url: "/Project 12/12/section/comments"
         json:
@@ -67,7 +39,6 @@ scenarios:
           backer: "Backer"
           comment: "Lorem Ipsum"
           date_prod: "2018-06-06T23:33:20.811Z"
-
     - post:
         url: "/Project 13/13/section/comments"
         json:
@@ -76,48 +47,35 @@ scenarios:
           backer: "Backer"
           comment: "Lorem Ipsum"
           date_prod: "2018-06-06T23:33:20.811Z"
-
     - put:
         url: "/Project 10/10/section/comments"
         json:
           username: "KassandraC"
           comment: "Lorem Ipsum test"
           date_prod: "2018-06-06T23:33:20.811Z"
-
     - put:
         url: "/Project 11/11/section/comments"
         json:
           username: "KassandraC"
           comment: "Lorem Ipsum test"
           date_prod: "2018-06-06T23:33:20.811Z"
-
     - delete:
         url: "/Project 10/10/section/comments"
         json:
-          username: "KassandraC test"
-          comment: "Lorem Ipsum"
-
+          username: "KassandraC"
+          comment: "Lorem Ipsum test"
     - delete:
         url: "/Project 11/11/section/comments"
         json:
-          username: "KassandraC test"
-          comment: "Lorem Ipsum"
-
+          username: "KassandraC"
+          comment: "Lorem Ipsum test"
     - delete:
         url: "/Project 12/12/section/comments"
         json:
           username: "KassandraC"
           comment: "Lorem Ipsum"
-
     - delete:
         url: "/Project 13/13/section/comments"
         json:
           username: "KassandraC"
           comment: "Lorem Ipsum"
-
-    # - think: 3
-
-    # - post:
-    #     url: "/cart"
-    #     json:
-    #       productId: "{{ id }}"
