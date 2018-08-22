@@ -4,6 +4,5 @@ coverage
 .ds_store
 /coverage.data
 /coverage/
-/postGres/commentData
-/postGres/projectData
+/postGres/data
 newrelic.js
