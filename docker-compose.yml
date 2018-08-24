@@ -23,8 +23,8 @@ services:
       - redis-data:/data
 
   comments:
-    build: .
-    # image: "stevenyslee/comments_comments:latest"
+    # build: .
+    image: "stevenyslee/comments_comments:latest"
     restart: on-failure
     environment:
       - NODE_ENV=production
