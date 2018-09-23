@@ -1,13 +1,13 @@
-# Igniter Comments Section
+# Enfocado Comments Section
 
-> Project description: Mock of a what a comment section of a popular crowd-funding website would look like.
+> Backend of Comments component for Project campaign service IGNITER
   
 ## Related Projects
 
-  - https://github.com/MADZ-labs/Project-Information
-  - https://github.com/MADZ-labs/updates
-  - https://github.com/MADZ-labs/campaign
-  - https://github.com/MADZ-labs/Comments
+  - https://github.com/Enfocado/Project-Information
+  - https://github.com/Enfocado/campaign
+  - https://github.com/Enfocado/updates
+  - https://github.com/Enfocado/Comments
 
 ## Table of Contents
 
@@ -17,14 +17,17 @@
 
 ## Usage
 
-> Some usage instructions
+> npm run build
+> npm run start
 
 ## Requirements
 
 An `nvmrc` file is included if using [nvm](https://github.com/creationix/nvm).
 
 - Node 6.13.0
-- etc
+- PostgreSQL 
+- React 16.4.1
+- Redis 2.8.0
 
 ## Development
 
